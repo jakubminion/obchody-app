@@ -50,7 +50,7 @@ export const PRIMARY_CATEGORY_LABELS: Record<PrimaryCategory, string> = {
   ART_BOOKS: 'Umění a knihy',
   DESIGN_FASHION: 'Design a móda',
   VINTAGE_ANTIQUES: 'Vintage a starožitnosti',
-  SCENT_BEAUTY: 'Vůně a krása',
+  SCENT_BEAUTY: 'Parfémy a kosmetika',
   SPECIALTY: 'Speciality',
 };
 
