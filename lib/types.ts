@@ -1,36 +1,42 @@
 export type Category =
-  | 'ART_PRINTS'
-  | 'BOOKSTORE'
-  | 'PERFUMERY'
-  | 'DESIGN_CONCEPT'
-  | 'SECONDHAND_VINTAGE'
-  | 'VINYL_MUSIC'
-  | 'CRAFT_SPECIALTY'
-  | 'BEAUTY_COSMETICS'
-  | 'PLANTS_FLOWERS';
+  | 'BOOKS'
+  | 'CLOTHING'
+  | 'MUSIC'
+  | 'PRINTS'
+  | 'JEWELRY'
+  | 'PERFUME'
+  | 'FLOWERS'
+  | 'ANTIQUES'
+  | 'COSMETICS'
+  | 'CRAFT'
+  | 'DESIGN';
 
 export const CATEGORY_LABELS: Record<Category, string> = {
-  ART_PRINTS: 'Art & tisky',
-  SECONDHAND_VINTAGE: 'Second hand & vintage',
-  BOOKSTORE: 'Knihkupectví',
-  CRAFT_SPECIALTY: 'Řemeslo & speciality',
-  PLANTS_FLOWERS: 'Rostliny & květiny',
-  DESIGN_CONCEPT: 'Design & concept story',
-  PERFUMERY: 'Parfumérie',
-  VINYL_MUSIC: 'Vinyl & hudba',
-  BEAUTY_COSMETICS: 'Krása & kosmetika',
+  BOOKS: 'Knihy',
+  CLOTHING: 'Oblečení',
+  MUSIC: 'Hudba',
+  PRINTS: 'Tisky',
+  JEWELRY: 'Šperky',
+  PERFUME: 'Parfémy',
+  FLOWERS: 'Květiny',
+  ANTIQUES: 'Starožitnictví',
+  COSMETICS: 'Kosmetika',
+  CRAFT: 'Řemeslo',
+  DESIGN: 'Design',
 };
 
 export const CATEGORIES: Category[] = [
-  'ART_PRINTS',
-  'BOOKSTORE',
-  'PERFUMERY',
-  'DESIGN_CONCEPT',
-  'SECONDHAND_VINTAGE',
-  'VINYL_MUSIC',
-  'CRAFT_SPECIALTY',
-  'BEAUTY_COSMETICS',
-  'PLANTS_FLOWERS',
+  'BOOKS',
+  'CLOTHING',
+  'MUSIC',
+  'PRINTS',
+  'JEWELRY',
+  'PERFUME',
+  'FLOWERS',
+  'ANTIQUES',
+  'COSMETICS',
+  'CRAFT',
+  'DESIGN',
 ];
 
 export interface OpeningInterval {
@@ -63,7 +69,7 @@ export interface Shop {
   logotypeUrl: string | null;
   keywordDescription: string;
   curatorNote: string | null;
-  category: Category;
+  categories: Category[];
   giftPriceMin: number | null;
   giftPriceMax: number | null;
   photos: string[];

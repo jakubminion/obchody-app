@@ -50,7 +50,9 @@ export default async function ShopsListPage() {
                     {shop.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-neutral-600">{CATEGORY_LABELS[shop.category]}</td>
+                <td className="px-4 py-3 text-neutral-600">
+                  {shop.categories.map((c) => CATEGORY_LABELS[c]).join(', ')}
+                </td>
                 <td className="px-4 py-3 text-neutral-600">{shop.locations.length}</td>
                 <td className="px-4 py-3">
                   {shop.published ? (

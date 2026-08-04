@@ -21,7 +21,7 @@ interface ShopRow {
   logotype_url: string | null;
   keyword_description: string;
   curator_note: string | null;
-  category: Category;
+  categories: Category[];
   gift_price_min: number | null;
   gift_price_max: number | null;
   photos: string[];
@@ -56,7 +56,7 @@ export function mapShopRow(row: ShopRow): Shop {
     logotypeUrl: row.logotype_url,
     keywordDescription: row.keyword_description,
     curatorNote: row.curator_note,
-    category: row.category,
+    categories: row.categories ?? [],
     giftPriceMin: row.gift_price_min,
     giftPriceMax: row.gift_price_max,
     photos: row.photos ?? [],

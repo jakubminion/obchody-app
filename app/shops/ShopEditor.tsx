@@ -14,7 +14,7 @@ import {
   addLocation,
   type ShopFormFields,
 } from '../actions';
-import { CATEGORIES, CATEGORY_LABELS, type Location, type Shop } from '@/lib/types';
+import { CATEGORIES, CATEGORY_LABELS, type Category, type Location, type Shop } from '@/lib/types';
 import { LocationCard } from './LocationCard';
 
 interface Props {
@@ -26,7 +26,7 @@ export function ShopEditor({ shop }: Props) {
   const isNew = shop === null;
 
   const [name, setName] = useState(shop?.name ?? '');
-  const [category, setCategory] = useState(shop?.category ?? CATEGORIES[0]);
+  const [categories, setCategories] = useState<Category[]>(shop?.categories ?? []);
   const [keywordDescription, setKeywordDescription] = useState(shop?.keywordDescription ?? '');
   const [curatorNote, setCuratorNote] = useState(shop?.curatorNote ?? '');
   const [giftPriceMin, setGiftPriceMin] = useState(shop?.giftPriceMin?.toString() ?? '');
@@ -51,10 +51,14 @@ export function ShopEditor({ shop }: Props) {
   const logotypeInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
+  function toggleCategory(c: Category) {
+    setCategories((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  }
+
   function fields(): ShopFormFields {
     return {
       name,
-      category,
+      categories,
       keywordDescription,
       curatorNote: curatorNote.trim() || null,
       giftPriceMin: giftPriceMin ? Number(giftPriceMin) : null,
@@ -68,6 +72,10 @@ export function ShopEditor({ shop }: Props) {
   function handleSave() {
     setError(null);
     setMessage(null);
+    if (categories.length === 0) {
+      setError('Vyberte alespoň jednu kategorii.');
+      return;
+    }
     startTransition(async () => {
       try {
         if (isNew) {
@@ -197,20 +205,32 @@ export function ShopEditor({ shop }: Props) {
           />
         </label>
 
-        <label className="block text-sm">
-          <span className="mb-1 block text-neutral-500">Kategorie</span>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as typeof category)}
-            className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
-          >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {CATEGORY_LABELS[c]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="text-sm">
+          <span className="mb-1 block text-neutral-500">
+            Kategorie {categories.length > 0 && <span className="text-neutral-400">(první = hlavní, určuje barvu na mapě)</span>}
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => {
+              const index = categories.indexOf(c);
+              const active = index !== -1;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => toggleCategory(c)}
+                  className={
+                    active
+                      ? 'rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white'
+                      : 'rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-600 hover:border-neutral-400'
+                  }
+                >
+                  {active && index === 0 ? '★ ' : ''}
+                  {CATEGORY_LABELS[c]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <label className="block text-sm">
           <span className="mb-1 block text-neutral-500">Klíčová slova (odděleno · )</span>
