@@ -30,6 +30,38 @@ interface Props {
   shop: Shop | null; // null = creating a new shop
 }
 
+// Phone photos can be several MB and several thousand pixels wide — well
+// past the Server Action body limit and unnecessarily large for display.
+// Downscale + re-encode as JPEG client-side before upload; falls back to
+// the original file if the browser can't decode it (e.g. an odd format).
+async function resizeImageForUpload(file: File, maxDimension = 1920, quality = 0.82): Promise<File> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    if (bitmap.width <= maxDimension && bitmap.height <= maxDimension) {
+      bitmap.close();
+      return file;
+    }
+    const scale = maxDimension / Math.max(bitmap.width, bitmap.height);
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+    if (!blob) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+  } catch {
+    return file;
+  }
+}
+
 export function ShopEditor({ shop }: Props) {
   const router = useRouter();
   const isNew = shop === null;
@@ -128,7 +160,8 @@ export function ShopEditor({ shop }: Props) {
     setLogoPending(true);
     setError(null);
     try {
-      const url = await uploadLogo(shop.id, file);
+      const resized = await resizeImageForUpload(file);
+      const url = await uploadLogo(shop.id, resized);
       setLogoUrl(`${url}?t=${Date.now()}`);
       router.refresh();
     } catch (err) {
@@ -146,7 +179,8 @@ export function ShopEditor({ shop }: Props) {
     setLogotypePending(true);
     setError(null);
     try {
-      const result = await uploadLogotype(shop.id, file);
+      const resized = await resizeImageForUpload(file);
+      const result = await uploadLogotype(shop.id, resized);
       setLogotypeUrl(`${result.url}?t=${Date.now()}`);
       router.refresh();
       const notes = [
@@ -172,7 +206,8 @@ export function ShopEditor({ shop }: Props) {
     setPhotoPending(true);
     setError(null);
     try {
-      await uploadPhoto(shop.id, file, photos);
+      const resized = await resizeImageForUpload(file);
+      await uploadPhoto(shop.id, resized, photos);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nahrání fotky se nezdařilo.');
