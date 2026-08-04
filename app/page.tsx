@@ -7,15 +7,24 @@ import { logout } from './login/actions';
 // shop list.
 export const dynamic = 'force-dynamic';
 
+// Seed photos are all picsum.photos placeholders — anything else uploaded
+// through this panel's photo manager is a real photo.
+function hasRealPhotos(photos: string[]): boolean {
+  return photos.length > 0 && photos.every((url) => !url.includes('picsum.photos'));
+}
+
 export default async function ShopsListPage() {
   const shops = await getShops();
+  const realPhotoCount = shops.filter((s) => hasRealPhotos(s.photos)).length;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-neutral-900">Obchody</h1>
-          <p className="text-sm text-neutral-500">{shops.length} obchodů celkem</p>
+          <p className="text-sm text-neutral-500">
+            {shops.length} obchodů celkem · {realPhotoCount}/{shops.length} má reálné fotky
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -39,6 +48,7 @@ export default async function ShopsListPage() {
               <th className="px-4 py-3 font-medium">Název</th>
               <th className="px-4 py-3 font-medium">Kategorie</th>
               <th className="px-4 py-3 font-medium">Pobočky</th>
+              <th className="px-4 py-3 font-medium">Fotky</th>
               <th className="px-4 py-3 font-medium">Stav</th>
             </tr>
           </thead>
@@ -54,6 +64,21 @@ export default async function ShopsListPage() {
                   {shop.categories.map((c) => CATEGORY_LABELS[c]).join(', ')}
                 </td>
                 <td className="px-4 py-3 text-neutral-600">{shop.locations.length}</td>
+                <td className="px-4 py-3">
+                  {shop.photos.length === 0 ? (
+                    <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">
+                      Chybí
+                    </span>
+                  ) : hasRealPhotos(shop.photos) ? (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                      Reálné ({shop.photos.length})
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                      Zástupné
+                    </span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   {shop.published ? (
                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
