@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Obchody Admin
 
-## Getting Started
+Internal admin panel for the [Obchody](../moje-aplikace) shop guide app — edit shop info, upload logos/photos, manage locations and opening hours, add/remove shops. Talks directly to the same Supabase project the mobile app reads from; changes here are live in the app on the next pull-to-refresh.
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000, log in with the password from `.env.local`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Set in `.env.local` for local dev, and in your hosting provider's dashboard for production:
 
-## Learn More
+| Variable | Purpose |
+|---|---|
+| `SUPABASE_URL` | Same Supabase project URL as the mobile app |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key — full write access, server-only, never sent to the browser |
+| `ADMIN_PASSWORD` | Single shared password gating the whole panel |
+| `SESSION_SECRET` | Random string used to sign the login session cookie — generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
 
-To learn more about Next.js, take a look at the following resources:
+## Deploying (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this repo to GitHub.
+2. On [vercel.com](https://vercel.com) → New Project → import the repo.
+3. Add the four environment variables above in the project's Settings → Environment Variables.
+4. Deploy. Every push to the main branch redeploys automatically.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Logo/logotype/photo uploads go to the `logos` / `logotypes` / `photos` Supabase Storage buckets. Logotype uploads run the same auto background-removal / color-normalization pipeline as `moje-aplikace/scripts/process-logotypes.mjs` — kept in sync deliberately (`lib/processLogotype.ts`).
+- Deleting a shop cascades to its locations (DB foreign key), but does **not** delete its Storage files — a known, accepted gap.
+- Auth is a single shared password, not per-user accounts — this is a one-curator tool. Every Server Action re-checks the session itself (`requireAuth()` in `lib/auth.ts`), not just the page-level gate in `proxy.ts`, per Next.js's own guidance that Proxy coverage can silently miss a route.
