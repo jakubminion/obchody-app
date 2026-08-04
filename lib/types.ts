@@ -39,6 +39,29 @@ export const CATEGORIES: Category[] = [
   'DESIGN',
 ];
 
+export type PrimaryCategory =
+  | 'ART_BOOKS'
+  | 'DESIGN_FASHION'
+  | 'VINTAGE_ANTIQUES'
+  | 'SCENT_BEAUTY'
+  | 'SPECIALTY';
+
+export const PRIMARY_CATEGORY_LABELS: Record<PrimaryCategory, string> = {
+  ART_BOOKS: 'Umění a knihy',
+  DESIGN_FASHION: 'Design a móda',
+  VINTAGE_ANTIQUES: 'Vintage a starožitnosti',
+  SCENT_BEAUTY: 'Vůně a krása',
+  SPECIALTY: 'Speciality',
+};
+
+export const PRIMARY_CATEGORIES: PrimaryCategory[] = [
+  'ART_BOOKS',
+  'DESIGN_FASHION',
+  'VINTAGE_ANTIQUES',
+  'SCENT_BEAUTY',
+  'SPECIALTY',
+];
+
 export interface OpeningInterval {
   open: string;
   close: string;
@@ -69,7 +92,8 @@ export interface Shop {
   logotypeUrl: string | null;
   keywordDescription: string;
   curatorNote: string | null;
-  categories: Category[];
+  primaryCategory: PrimaryCategory;
+  tags: Category[];
   giftPriceMin: number | null;
   giftPriceMax: number | null;
   photos: string[];

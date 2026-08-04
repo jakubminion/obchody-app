@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAuth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { processLogotype } from '@/lib/processLogotype';
-import type { Category, Location, WeekdayHours } from '@/lib/types';
+import type { Category, Location, PrimaryCategory, WeekdayHours } from '@/lib/types';
 
 function slugify(name: string): string {
   return name
@@ -18,7 +18,8 @@ function slugify(name: string): string {
 
 export interface ShopFormFields {
   name: string;
-  categories: Category[];
+  primaryCategory: PrimaryCategory;
+  tags: Category[];
   keywordDescription: string;
   curatorNote: string | null;
   giftPriceMin: number | null;
@@ -34,7 +35,8 @@ export async function saveShop(id: string, fields: ShopFormFields): Promise<void
     .from('shops')
     .update({
       name: fields.name,
-      categories: fields.categories,
+      primary_category: fields.primaryCategory,
+      tags: fields.tags,
       keyword_description: fields.keywordDescription,
       curator_note: fields.curatorNote,
       gift_price_min: fields.giftPriceMin,
@@ -63,7 +65,8 @@ export async function createShop(fields: ShopFormFields): Promise<never> {
     id,
     slug: id,
     name: fields.name,
-    categories: fields.categories,
+    primary_category: fields.primaryCategory,
+    tags: fields.tags,
     keyword_description: fields.keywordDescription,
     curator_note: fields.curatorNote,
     gift_price_min: fields.giftPriceMin,

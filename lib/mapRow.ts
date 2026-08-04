@@ -1,4 +1,4 @@
-import type { Category, Location, Shop, WeekdayHours } from './types';
+import type { Category, Location, PrimaryCategory, Shop, WeekdayHours } from './types';
 
 interface LocationRow {
   id: string;
@@ -21,7 +21,8 @@ interface ShopRow {
   logotype_url: string | null;
   keyword_description: string;
   curator_note: string | null;
-  categories: Category[];
+  primary_category: PrimaryCategory;
+  tags: Category[];
   gift_price_min: number | null;
   gift_price_max: number | null;
   photos: string[];
@@ -56,7 +57,8 @@ export function mapShopRow(row: ShopRow): Shop {
     logotypeUrl: row.logotype_url,
     keywordDescription: row.keyword_description,
     curatorNote: row.curator_note,
-    categories: row.categories ?? [],
+    primaryCategory: row.primary_category,
+    tags: row.tags ?? [],
     giftPriceMin: row.gift_price_min,
     giftPriceMax: row.gift_price_max,
     photos: row.photos ?? [],

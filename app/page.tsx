@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getShops } from '@/lib/data';
-import { CATEGORY_LABELS } from '@/lib/types';
+import { PRIMARY_CATEGORY_LABELS } from '@/lib/types';
 import { logout } from './login/actions';
 
 // Always fetch live — this must never serve a build-time snapshot of the
@@ -61,7 +61,7 @@ export default async function ShopsListPage() {
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-neutral-600">
-                  {shop.categories.map((c) => CATEGORY_LABELS[c]).join(', ')}
+                  {PRIMARY_CATEGORY_LABELS[shop.primaryCategory]}
                 </td>
                 <td className="px-4 py-3 text-neutral-600">{shop.locations.length}</td>
                 <td className="px-4 py-3">

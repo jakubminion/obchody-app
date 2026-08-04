@@ -14,7 +14,16 @@ import {
   addLocation,
   type ShopFormFields,
 } from '../actions';
-import { CATEGORIES, CATEGORY_LABELS, type Category, type Location, type Shop } from '@/lib/types';
+import {
+  CATEGORIES,
+  CATEGORY_LABELS,
+  PRIMARY_CATEGORIES,
+  PRIMARY_CATEGORY_LABELS,
+  type Category,
+  type Location,
+  type PrimaryCategory,
+  type Shop,
+} from '@/lib/types';
 import { LocationCard } from './LocationCard';
 
 interface Props {
@@ -26,7 +35,10 @@ export function ShopEditor({ shop }: Props) {
   const isNew = shop === null;
 
   const [name, setName] = useState(shop?.name ?? '');
-  const [categories, setCategories] = useState<Category[]>(shop?.categories ?? []);
+  const [primaryCategory, setPrimaryCategory] = useState<PrimaryCategory | null>(
+    shop?.primaryCategory ?? null,
+  );
+  const [tags, setTags] = useState<Category[]>(shop?.tags ?? []);
   const [keywordDescription, setKeywordDescription] = useState(shop?.keywordDescription ?? '');
   const [curatorNote, setCuratorNote] = useState(shop?.curatorNote ?? '');
   const [giftPriceMin, setGiftPriceMin] = useState(shop?.giftPriceMin?.toString() ?? '');
@@ -51,14 +63,16 @@ export function ShopEditor({ shop }: Props) {
   const logotypeInputRef = useRef<HTMLInputElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  function toggleCategory(c: Category) {
-    setCategories((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  function toggleTag(c: Category) {
+    setTags((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
   }
 
   function fields(): ShopFormFields {
+    if (!primaryCategory) throw new Error('Vyberte hlavní kategorii.');
     return {
       name,
-      categories,
+      primaryCategory,
+      tags,
       keywordDescription,
       curatorNote: curatorNote.trim() || null,
       giftPriceMin: giftPriceMin ? Number(giftPriceMin) : null,
@@ -72,8 +86,12 @@ export function ShopEditor({ shop }: Props) {
   function handleSave() {
     setError(null);
     setMessage(null);
-    if (categories.length === 0) {
-      setError('Vyberte alespoň jednu kategorii.');
+    if (!primaryCategory) {
+      setError('Vyberte hlavní kategorii.');
+      return;
+    }
+    if (tags.length === 0) {
+      setError('Vyberte alespoň jeden štítek.');
       return;
     }
     startTransition(async () => {
@@ -207,24 +225,45 @@ export function ShopEditor({ shop }: Props) {
 
         <div className="text-sm">
           <span className="mb-1 block text-neutral-500">
-            Kategorie {categories.length > 0 && <span className="text-neutral-400">(první = hlavní, určuje barvu na mapě)</span>}
+            Hlavní kategorie <span className="text-neutral-400">(určuje barvu a ikonu na mapě)</span>
           </span>
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => {
-              const index = categories.indexOf(c);
-              const active = index !== -1;
+            {PRIMARY_CATEGORIES.map((c) => {
+              const active = primaryCategory === c;
               return (
                 <button
                   key={c}
                   type="button"
-                  onClick={() => toggleCategory(c)}
+                  onClick={() => setPrimaryCategory(c)}
                   className={
                     active
                       ? 'rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white'
                       : 'rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-600 hover:border-neutral-400'
                   }
                 >
-                  {active && index === 0 ? '★ ' : ''}
+                  {PRIMARY_CATEGORY_LABELS[c]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="text-sm">
+          <span className="mb-1 block text-neutral-500">Štítky</span>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((c) => {
+              const active = tags.includes(c);
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => toggleTag(c)}
+                  className={
+                    active
+                      ? 'rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white'
+                      : 'rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-600 hover:border-neutral-400'
+                  }
+                >
                   {CATEGORY_LABELS[c]}
                 </button>
               );
