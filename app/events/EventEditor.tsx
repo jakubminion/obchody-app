@@ -148,8 +148,11 @@ export function EventEditor({ event, candidate, locationOptions }: Props) {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
-      <a href="/watchdog" className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-700">
-        ← Hlídač akcí
+      <a
+        href={isNew ? '/watchdog' : '/events'}
+        className="mb-6 inline-block text-sm text-neutral-400 hover:text-neutral-700"
+      >
+        {isNew ? '← Hlídač akcí' : '← Akce'}
       </a>
 
       <h1 className="mb-6 text-2xl font-semibold text-neutral-900">{isNew ? 'Nová akce' : title}</h1>

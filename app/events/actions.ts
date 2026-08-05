@@ -60,6 +60,7 @@ export async function createEvent(fields: EventFormFields): Promise<never> {
   }
 
   revalidatePath('/watchdog');
+  revalidatePath('/events');
   redirect(`/events/${data.id}`);
 }
 
@@ -68,13 +69,15 @@ export async function saveEvent(id: string, fields: EventFormFields): Promise<vo
   const { error } = await supabaseAdmin.from('events').update(toRow(fields)).eq('id', id);
   if (error) throw error;
   revalidatePath(`/events/${id}`);
+  revalidatePath('/events');
 }
 
 export async function deleteEvent(id: string): Promise<never> {
   await requireAuth();
   const { error } = await supabaseAdmin.from('events').delete().eq('id', id);
   if (error) throw error;
-  redirect('/watchdog');
+  revalidatePath('/events');
+  redirect('/events');
 }
 
 export async function uploadEventImage(eventId: string, file: File): Promise<string> {

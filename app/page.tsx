@@ -27,6 +27,9 @@ export default async function ShopsListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link href="/events" className="text-sm text-neutral-500 hover:text-neutral-900">
+            Akce
+          </Link>
           <Link href="/watchdog" className="text-sm text-neutral-500 hover:text-neutral-900">
             Hlídač akcí
           </Link>
