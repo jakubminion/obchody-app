@@ -22,6 +22,8 @@ export interface EventCandidateRow {
   description: string | null;
   starts_at: string | null;
   ends_at: string | null;
+  opens_time: string | null;
+  closes_time: string | null;
   venue_name: string | null;
   address_raw: string | null;
   lat: number | null;
@@ -43,6 +45,8 @@ export interface EventRow {
   description: string | null;
   starts_at: string;
   ends_at: string | null;
+  opens_time: string | null;
+  closes_time: string | null;
   venue_name: string | null;
   location_id: string | null;
   address: string | null;

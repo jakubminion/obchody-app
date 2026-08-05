@@ -16,6 +16,8 @@ import type { EventCandidateRow, EventRow } from '@/lib/watchdog/types';
 export interface LocationOption {
   id: string;
   label: string;
+  lat: number;
+  lng: number;
 }
 
 interface Props {
@@ -24,14 +26,14 @@ interface Props {
   locationOptions: LocationOption[];
 }
 
-function isoToLocalInput(iso: string | null): string {
+function isoToDateInput(iso: string | null): string {
   if (!iso) return '';
-  return iso.slice(0, 16);
+  return iso.slice(0, 10);
 }
 
-function localInputToIso(value: string): string | null {
+function dateInputToIso(value: string): string | null {
   if (!value) return null;
-  return new Date(`${value}:00.000Z`).toISOString();
+  return new Date(`${value}T00:00:00.000Z`).toISOString();
 }
 
 export function EventEditor({ event, candidate, locationOptions }: Props) {
@@ -41,13 +43,15 @@ export function EventEditor({ event, candidate, locationOptions }: Props) {
 
   const [title, setTitle] = useState(event?.title ?? candidate?.title ?? '');
   const [description, setDescription] = useState(event?.description ?? candidate?.description ?? '');
-  const [startsAt, setStartsAt] = useState(isoToLocalInput(event?.starts_at ?? candidate?.starts_at ?? null));
-  const [endsAt, setEndsAt] = useState(isoToLocalInput(event?.ends_at ?? candidate?.ends_at ?? null));
+  const [startsAt, setStartsAt] = useState(isoToDateInput(event?.starts_at ?? candidate?.starts_at ?? null));
+  const [endsAt, setEndsAt] = useState(isoToDateInput(event?.ends_at ?? candidate?.ends_at ?? null));
+  const [opensTime, setOpensTime] = useState(event?.opens_time ?? candidate?.opens_time ?? '');
+  const [closesTime, setClosesTime] = useState(event?.closes_time ?? candidate?.closes_time ?? '');
   const [venueName, setVenueName] = useState(event?.venue_name ?? candidate?.venue_name ?? '');
   const [locationId, setLocationId] = useState(event?.location_id ?? candidate?.matched_location_id ?? '');
   const [address, setAddress] = useState(event?.address ?? candidate?.address_raw ?? '');
-  const [lat] = useState(event?.lat ?? candidate?.lat ?? null);
-  const [lng] = useState(event?.lng ?? candidate?.lng ?? null);
+  const [lat, setLat] = useState(event?.lat ?? candidate?.lat ?? null);
+  const [lng, setLng] = useState(event?.lng ?? candidate?.lng ?? null);
   const [imageUrl, setImageUrl] = useState(event?.image_url ?? null);
   const [sourceUrl] = useState(event?.source_url ?? candidate?.source_url ?? null);
   const [published, setPublished] = useState(event?.published ?? false);
@@ -59,13 +63,15 @@ export function EventEditor({ event, candidate, locationOptions }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function fields(): EventFormFields {
-    const iso = localInputToIso(startsAt);
+    const iso = dateInputToIso(startsAt);
     if (!iso) throw new Error('Vyplňte datum začátku.');
     return {
       title,
       description: description.trim() || null,
       startsAt: iso,
-      endsAt: localInputToIso(endsAt),
+      endsAt: dateInputToIso(endsAt),
+      opensTime: opensTime || null,
+      closesTime: closesTime || null,
       venueName: venueName.trim() || null,
       locationId: locationId || null,
       address: address.trim() || null,
@@ -168,25 +174,48 @@ export function EventEditor({ event, candidate, locationOptions }: Props) {
           />
         </label>
 
-        <div className="grid grid-cols-2 gap-4">
-          <label className="block text-sm">
-            <span className="mb-1 block text-neutral-500">Začátek</span>
+        <div className="text-sm">
+          <span className="mb-1 block text-neutral-500">Dny konání</span>
+          <div className="grid grid-cols-2 gap-4">
             <input
-              type="datetime-local"
+              type="date"
               value={startsAt}
               onChange={(e) => setStartsAt(e.target.value)}
               className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
             />
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-neutral-500">Konec (nepovinné)</span>
             <input
-              type="datetime-local"
+              type="date"
               value={endsAt}
               onChange={(e) => setEndsAt(e.target.value)}
+              placeholder="Konec (nepovinné)"
               className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
             />
-          </label>
+          </div>
+          <span className="mt-1 block text-xs text-neutral-400">
+            Necháte-li konec prázdný, akce se bere jako jednodenní.
+          </span>
+        </div>
+
+        <div className="text-sm">
+          <span className="mb-1 block text-neutral-500">Otevírací doba (denně, nepovinné)</span>
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="time"
+              value={opensTime}
+              onChange={(e) => setOpensTime(e.target.value)}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            />
+            <input
+              type="time"
+              value={closesTime}
+              onChange={(e) => setClosesTime(e.target.value)}
+              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <span className="mt-1 block text-xs text-neutral-400">
+            Odděleno od dnů konání — u vícedenní akce platí stejná doba každý den (např. trh 12.–14. 9. otevřený
+            10:00–18:00). Necháte-li prázdné, bere se akce jako otevřená po celou dobu konání.
+          </span>
         </div>
 
         <label className="block text-sm">
@@ -202,7 +231,18 @@ export function EventEditor({ event, candidate, locationOptions }: Props) {
           <span className="mb-1 block text-neutral-500">Spárovaný obchod / pobočka (nepovinné)</span>
           <select
             value={locationId}
-            onChange={(e) => setLocationId(e.target.value)}
+            onChange={(e) => {
+              const id = e.target.value;
+              setLocationId(id);
+              // The matched location's own coordinates are more trustworthy
+              // than a geocoded address_raw guess — take precedence once a
+              // location is explicitly picked.
+              const picked = locationOptions.find((opt) => opt.id === id);
+              if (picked) {
+                setLat(picked.lat);
+                setLng(picked.lng);
+              }
+            }}
             className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
           >
             <option value="">— nespárováno —</option>
@@ -222,6 +262,14 @@ export function EventEditor({ event, candidate, locationOptions }: Props) {
             className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
           />
         </label>
+
+        <p className="text-xs text-neutral-400">
+          {lat !== null && lng !== null ? (
+            <>Souřadnice nastaveny — akce se zobrazí na mapě ({lat.toFixed(4)}, {lng.toFixed(4)}).</>
+          ) : (
+            'Chybí souřadnice — akce se na mapě nezobrazí, dokud nevyberete spárované místo.'
+          )}
+        </p>
 
         {sourceUrl && (
           <p className="text-xs text-neutral-400">

@@ -88,6 +88,7 @@ export function ShopEditor({ shop }: Props) {
   const [logoPending, setLogoPending] = useState(false);
   const [logotypePending, setLogotypePending] = useState(false);
   const [photoPending, setPhotoPending] = useState(false);
+  const [photoProgress, setPhotoProgress] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -201,18 +202,31 @@ export function ShopEditor({ shop }: Props) {
 
   async function handlePhotoAdd(e: React.ChangeEvent<HTMLInputElement>) {
     if (!shop) return;
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     setPhotoPending(true);
     setError(null);
+    // Uploaded one at a time, each call fed the *result* of the previous
+    // one — uploading in parallel would have every call read the same
+    // stale `photos` snapshot and each write it back, silently dropping
+    // all but the last upload.
+    let uploaded = photos;
     try {
-      const resized = await resizeImageForUpload(file);
-      await uploadPhoto(shop.id, resized, photos);
+      for (let i = 0; i < files.length; i++) {
+        if (files.length > 1) setPhotoProgress(`Nahrávám ${i + 1} z ${files.length}…`);
+        const resized = await resizeImageForUpload(files[i]);
+        const url = await uploadPhoto(shop.id, resized, uploaded);
+        uploaded = [...uploaded, url];
+        setPhotos(uploaded); // keep the UI in sync after every single file
+      }
       router.refresh();
     } catch (err) {
+      // Whatever uploaded before the failure stays — only the remaining
+      // files in this batch are lost, nothing already saved.
       setError(err instanceof Error ? err.message : 'Nahrání fotky se nezdařilo.');
     } finally {
       setPhotoPending(false);
+      setPhotoProgress(null);
       if (photoInputRef.current) photoInputRef.current.value = '';
     }
   }
@@ -444,7 +458,16 @@ export function ShopEditor({ shop }: Props) {
                 </div>
               ))}
             </div>
-            <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhotoAdd} disabled={photoPending} className="text-xs" />
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handlePhotoAdd}
+              disabled={photoPending}
+              className="text-xs"
+            />
+            {photoProgress && <p className="mt-1 text-xs text-neutral-400">{photoProgress}</p>}
           </section>
 
           <section className="mb-8 rounded-xl border border-neutral-200 bg-white p-6">

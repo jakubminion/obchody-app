@@ -10,8 +10,10 @@ import { buildFingerprint } from '@/lib/watchdog/fingerprint';
 export interface EventFormFields {
   title: string;
   description: string | null;
-  startsAt: string; // ISO datetime
-  endsAt: string | null;
+  startsAt: string; // ISO date — the first day the event runs
+  endsAt: string | null; // ISO date — the last day, or null if single-day
+  opensTime: string | null; // "HH:MM", daily opening time within the date range
+  closesTime: string | null; // "HH:MM", daily closing time within the date range
   venueName: string | null;
   locationId: string | null;
   address: string | null;
@@ -29,6 +31,8 @@ function toRow(fields: EventFormFields) {
     description: fields.description,
     starts_at: fields.startsAt,
     ends_at: fields.endsAt,
+    opens_time: fields.opensTime,
+    closes_time: fields.closesTime,
     venue_name: fields.venueName,
     location_id: fields.locationId,
     address: fields.address,

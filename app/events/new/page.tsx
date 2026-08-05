@@ -26,6 +26,8 @@ export default async function NewEventPage({
     shop.locations.map((location) => ({
       id: location.id,
       label: location.label ? `${shop.name} · ${location.label}` : shop.name,
+      lat: location.lat,
+      lng: location.lng,
     })),
   );
 

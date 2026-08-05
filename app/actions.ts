@@ -134,7 +134,11 @@ export async function uploadLogotype(shopId: string, file: File): Promise<Upload
   return { url, recolored, strippedBg, uncertainBg };
 }
 
-export async function uploadPhoto(shopId: string, file: File, currentPhotos: string[]): Promise<void> {
+// Returns the uploaded URL so callers can thread a growing photos array
+// through several sequential calls (see ShopEditor's bulk-upload flow) —
+// each call's `currentPhotos` must be the result of the previous one, or
+// uploading several files at once would race and silently drop photos.
+export async function uploadPhoto(shopId: string, file: File, currentPhotos: string[]): Promise<string> {
   await requireAuth();
   const buffer = Buffer.from(await file.arrayBuffer());
   const ext = extFromMime(file.type);
@@ -146,6 +150,7 @@ export async function uploadPhoto(shopId: string, file: File, currentPhotos: str
     .eq('id', shopId);
   if (error) throw error;
   revalidatePath(`/shops/${shopId}`);
+  return url;
 }
 
 export async function removePhoto(shopId: string, photoUrl: string, currentPhotos: string[]): Promise<void> {

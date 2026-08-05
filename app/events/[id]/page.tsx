@@ -16,6 +16,8 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
     shop.locations.map((location) => ({
       id: location.id,
       label: location.label ? `${shop.name} · ${location.label}` : shop.name,
+      lat: location.lat,
+      lng: location.lng,
     })),
   );
 
