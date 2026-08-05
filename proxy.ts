@@ -13,7 +13,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Everything except /login itself, static assets, and the favicon.
-    '/((?!login|_next/static|_next/image|favicon.ico).*)',
+    // Everything except /login, the watchdog cron endpoint (no session
+    // cookie — authenticated by its own bearer-secret check instead),
+    // static assets, and the favicon.
+    '/((?!login|api/watchdog|_next/static|_next/image|favicon.ico).*)',
   ],
 };

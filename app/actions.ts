@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAuth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { processLogotype } from '@/lib/processLogotype';
+import { uploadToBucket, extFromMime } from '@/lib/storage';
 import type { Category, Location, PrimaryCategory, WeekdayHours } from '@/lib/types';
 
 function slugify(name: string): string {
@@ -103,21 +104,6 @@ export async function deleteShop(id: string): Promise<void> {
   redirect('/');
 }
 
-async function uploadToBucket(bucket: string, path: string, buffer: Buffer, contentType: string): Promise<string> {
-  const { error } = await supabaseAdmin.storage.from(bucket).upload(path, buffer, { contentType, upsert: true });
-  if (error) throw error;
-  const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
-}
-
-function extFromMime(mime: string): string {
-  if (mime.includes('svg')) return 'svg';
-  if (mime.includes('png')) return 'png';
-  if (mime.includes('webp')) return 'webp';
-  if (mime.includes('gif')) return 'gif';
-  if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
-  return 'png';
-}
 
 export async function uploadLogo(shopId: string, file: File): Promise<string> {
   await requireAuth();
