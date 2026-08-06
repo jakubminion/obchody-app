@@ -2,13 +2,13 @@ export const metadata = {
   title: 'Návrh nové palety — Obchody',
 };
 
-// Raw palette the user gave us.
+// Raw palette the user gave us (second round).
 const RAW = {
-  oxblood: '#6F1D1B',
-  tan: '#BB9457',
-  darkBrown: '#432818',
-  sienna: '#99582A',
-  cream: '#FFE6A7',
+  charcoal: '#252426',
+  forest: '#3E592A',
+  cream: '#F2E6C2',
+  orange: '#F25C05',
+  brownRed: '#592D14',
 };
 
 // Two extra shades derived the same way the current palette derives its one
@@ -16,16 +16,19 @@ const RAW = {
 // hue. Everything below is a PROPOSAL for review, nothing is wired into
 // the real app yet.
 const DERIVED = {
-  rust: '#843A22', // oxblood x sienna
-  olive: '#73532F', // tan x darkBrown
+  rust: '#A6450D', // orange x brownRed
+  darkOlive: '#323F28', // forest x charcoal
 };
 
+// This palette actually has a real green in it, unlike the first round —
+// so parks get to use an honest green instead of a brown standing in for
+// one.
 const CATEGORIES = [
-  { label: 'Umění a knihy', color: RAW.tan, icon: '📚' },
-  { label: 'Design a móda', color: RAW.oxblood, icon: '🧵' },
-  { label: 'Vintage a starožitnosti', color: RAW.sienna, icon: '🕰️' },
-  { label: 'Parfémy a kosmetika', color: DERIVED.rust, icon: '🧴' },
-  { label: 'Speciality', color: DERIVED.olive, icon: '⭐' },
+  { label: 'Umění a knihy', color: RAW.brownRed, icon: '📚' },
+  { label: 'Design a móda', color: RAW.orange, icon: '🧵' },
+  { label: 'Vintage a starožitnosti', color: DERIVED.rust, icon: '🕰️' },
+  { label: 'Parfémy a kosmetika', color: RAW.forest, icon: '🧴' },
+  { label: 'Speciality', color: DERIVED.darkOlive, icon: '⭐' },
 ];
 
 const TAGS = [
@@ -110,12 +113,12 @@ function MapPreview({
 
       {/* a couple of pins for scale */}
       <g transform="translate(96,58) scale(0.8)">
-        <path d="M5 26 L29 26 L17 45 Z" fill={RAW.oxblood} />
-        <circle cx={17} cy={17} r={15} fill={RAW.oxblood} stroke="#FFF" strokeWidth={2} />
+        <path d="M5 26 L29 26 L17 45 Z" fill={RAW.brownRed} />
+        <circle cx={17} cy={17} r={15} fill={RAW.brownRed} stroke="#FFF" strokeWidth={2} />
       </g>
       <g transform="translate(178,118) scale(0.8)">
-        <path d="M5 26 L29 26 L17 45 Z" fill={RAW.sienna} />
-        <circle cx={17} cy={17} r={15} fill={RAW.sienna} stroke="#FFF" strokeWidth={2} />
+        <path d="M5 26 L29 26 L17 45 Z" fill={RAW.orange} />
+        <circle cx={17} cy={17} r={15} fill={RAW.orange} stroke="#FFF" strokeWidth={2} />
       </g>
     </svg>
   );
@@ -215,7 +218,7 @@ function ThemeBlock({
                 right: 0,
                 bottom: 0,
                 padding: '28px 12px 10px',
-                background: `linear-gradient(to top, ${RAW.darkBrown}E6, transparent)`,
+                background: `linear-gradient(to top, ${RAW.charcoal}E6, transparent)`,
               }}
             >
               <div style={{ color: '#FFF', fontWeight: 700, fontSize: 13.5 }}>Papelote</div>
@@ -311,35 +314,36 @@ function ThemeBlock({
 export default function PaletteMockupPage() {
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 24px 80px', fontFamily: '-apple-system, sans-serif' }}>
-      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.06, textTransform: 'uppercase', color: RAW.sienna, margin: '0 0 10px' }}>
-        Návrh — zatím nikde nezapojeno
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.06, textTransform: 'uppercase', color: RAW.orange, margin: '0 0 10px' }}>
+        Návrh (2. verze) — zatím nikde nezapojeno
       </p>
       <h1 style={{ fontSize: 28, margin: '0 0 8px', color: '#221913' }}>Nová paleta v kontextu aplikace</h1>
       <p style={{ color: '#6b5c4c', maxWidth: '62ch', marginBottom: 28 }}>
-        Ukázka, jak by dodaná paleta fungovala na skutečných prvcích aplikace — dlaždice obchodu, špendlíky na mapě,
-        detail obchodu, kategorie. Nic z tohoto zatím není zapojeno do reálného kódu; jde jen o vizuální náhled ke
-        schválení. Dvě barvy navíc (níže označené &quot;odvozeno&quot;) jsou dopočítané směsi dvou zadaných barev —
-        stejný princip, jaký současná paleta používá pro jeden odvozený hnědý odstín kategorie Vintage.
+        Druhá varianta, jiná zadaná paleta. Ukázka na stejných prvcích jako předtím — dlaždice obchodu, špendlíky na
+        mapě, styl mapy, detail obchodu, kategorie, v obou režimech. Nic z tohoto zatím není zapojeno do reálného
+        kódu. Dvě barvy navíc (&quot;odvozeno&quot;) jsou dopočítané směsi dvou zadaných barev, stejně jako v první
+        variantě.
       </p>
 
       <h2 style={{ fontSize: 15, margin: '0 0 12px' }}>Zadaná paleta</h2>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
-        <Swatch hex={RAW.oxblood} label="oxblood" />
-        <Swatch hex={RAW.tan} label="tan" />
-        <Swatch hex={RAW.darkBrown} label="dark brown" />
-        <Swatch hex={RAW.sienna} label="sienna" />
+        <Swatch hex={RAW.charcoal} label="charcoal" />
+        <Swatch hex={RAW.forest} label="forest" />
         <Swatch hex={RAW.cream} label="cream" />
+        <Swatch hex={RAW.orange} label="orange" />
+        <Swatch hex={RAW.brownRed} label="brown-red" />
       </div>
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
         <Swatch hex={DERIVED.rust} label="rust (odvozeno)" />
-        <Swatch hex={DERIVED.olive} label="olive (odvozeno)" />
+        <Swatch hex={DERIVED.darkOlive} label="tmavá oliva (odvozeno)" />
       </div>
 
       <h2 style={{ fontSize: 15, margin: '0 0 12px' }}>Navržené role</h2>
       <ul style={{ fontSize: 13.5, color: '#4a3d30', lineHeight: 1.9, marginBottom: 32 }}>
-        <li><b>Pozadí (light):</b> cream #FFE6A7 &nbsp;·&nbsp; <b>Text/ink (light):</b> dark brown #432818</li>
-        <li><b>Oblíbené (srdíčko):</b> oxblood #6F1D1B &nbsp;·&nbsp; <b>Akcent (přepínače, živé akce):</b> sienna #99582A</li>
-        <li><b>5 hlavních kategorií:</b> tan, oxblood, sienna, rust (odvozeno), olive (odvozeno)</li>
+        <li><b>Pozadí (light):</b> cream #F2E6C2 &nbsp;·&nbsp; <b>Text/ink (light):</b> charcoal #252426</li>
+        <li><b>Oblíbené (srdíčko):</b> brown-red #592D14 &nbsp;·&nbsp; <b>Akcent (přepínače, živé akce):</b> orange #F25C05</li>
+        <li><b>5 hlavních kategorií:</b> brown-red, orange, rust (odvozeno), forest, tmavá oliva (odvozeno)</li>
+        <li><b>Mapa — parky:</b> tady konečně skutečná zelená (forest), místo hnědé náhrady jako v první variantě</li>
       </ul>
 
       <h2 style={{ fontSize: 15, margin: '0 0 12px' }}>Světlý režim</h2>
@@ -348,21 +352,21 @@ export default function PaletteMockupPage() {
           mode="Light"
           bg={RAW.cream}
           surface="#FFFFFF"
-          ink={RAW.darkBrown}
-          inkSecondary="#7A5C3E"
-          inkTertiary="#A88B62"
-          border="#E9CE8F"
-          favorite={RAW.oxblood}
-          accent={RAW.sienna}
+          ink={RAW.charcoal}
+          inkSecondary="#6D6858"
+          inkTertiary="#968F7B"
+          border="#E1D6B5"
+          favorite={RAW.brownRed}
+          accent={RAW.orange}
           map={{
             land: RAW.cream,
-            water: RAW.darkBrown,
-            park: DERIVED.olive,
+            water: RAW.charcoal,
+            park: RAW.forest,
             roadFill: '#FFFFFF',
-            roadStroke: '#E9CE8F',
-            highway: RAW.tan,
-            highwayStroke: RAW.oxblood,
-            labelStroke: RAW.darkBrown,
+            roadStroke: '#E1D6B5',
+            highway: RAW.orange,
+            highwayStroke: RAW.brownRed,
+            labelStroke: RAW.charcoal,
           }}
         />
       </div>
@@ -370,22 +374,22 @@ export default function PaletteMockupPage() {
       <h2 style={{ fontSize: 15, margin: '0 0 12px' }}>Tmavý režim</h2>
       <ThemeBlock
         mode="Dark"
-        bg="#241608"
-        surface="#33220F"
+        bg={RAW.charcoal}
+        surface="#444138"
         ink={RAW.cream}
-        inkSecondary="#D8C08A"
-        inkTertiary="#9C8459"
-        border="#4A3520"
-        favorite="#D6564F"
-        accent={RAW.tan}
+        inkSecondary="#BEB59B"
+        inkTertiary="#8C8574"
+        border="#3D3B39"
+        favorite="#AD470C"
+        accent={RAW.orange}
         map={{
-          land: '#241608',
-          water: '#120B04',
-          park: '#5C3A22',
-          roadFill: '#33220F',
-          roadStroke: '#4A3520',
-          highway: RAW.tan,
-          highwayStroke: '#5F4322',
+          land: RAW.charcoal,
+          water: '#2C160A',
+          park: '#253519',
+          roadFill: '#444138',
+          roadStroke: '#3D3B39',
+          highway: '#913703',
+          highwayStroke: '#612502',
           labelStroke: RAW.cream,
         }}
       />
