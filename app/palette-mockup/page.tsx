@@ -51,6 +51,76 @@ function Swatch({ hex, label, sub }: { hex: string; label: string; sub?: string 
   );
 }
 
+// Schematic, not a real map render — the Google Maps API key is restricted
+// to the iOS/Android SDKs, not the web, so it won't load here. This
+// reproduces the same *roles* the real custom map style (mapStyle.ts) uses:
+// cream/dark land, a distinct water color, park blobs, a plain road grid,
+// one highway accent, plus a couple of real pins dropped on top for scale.
+function MapPreview({
+  land,
+  water,
+  park,
+  roadFill,
+  roadStroke,
+  highway,
+  highwayStroke,
+  labelStroke,
+}: {
+  land: string;
+  water: string;
+  park: string;
+  roadFill: string;
+  roadStroke: string;
+  highway: string;
+  highwayStroke: string;
+  labelStroke: string;
+}) {
+  return (
+    <svg width={280} height={190} viewBox="0 0 280 190" style={{ borderRadius: 12, display: 'block' }}>
+      <rect width={280} height={190} fill={land} />
+
+      {/* river */}
+      <path
+        d="M -10 40 C 60 30, 70 90, 140 85 S 230 130, 290 110"
+        fill="none"
+        stroke={water}
+        strokeWidth={22}
+      />
+
+      {/* park blobs */}
+      <ellipse cx={70} cy={140} rx={38} ry={26} fill={park} />
+      <ellipse cx={225} cy={45} rx={26} ry={20} fill={park} />
+
+      {/* plain road grid */}
+      {[30, 65, 100, 135, 170].map((y) => (
+        <rect key={`h${y}`} x={0} y={y} width={280} height={4} fill={roadFill} stroke={roadStroke} strokeWidth={0.5} />
+      ))}
+      {[40, 90, 150, 210, 250].map((x) => (
+        <rect key={`v${x}`} x={x} y={0} width={4} height={190} fill={roadFill} stroke={roadStroke} strokeWidth={0.5} />
+      ))}
+
+      {/* highway */}
+      <line x1={-10} y1={175} x2={290} y2={15} stroke={highwayStroke} strokeWidth={10} />
+      <line x1={-10} y1={175} x2={290} y2={15} stroke={highway} strokeWidth={6} />
+
+      {/* a locality label, matching labels.text.stroke role */}
+      <text x={140} y={100} textAnchor="middle" fontSize={13} fontWeight={700} fill={labelStroke} stroke={land} strokeWidth={3} paintOrder="stroke">
+        Praha
+      </text>
+
+      {/* a couple of pins for scale */}
+      <g transform="translate(96,58) scale(0.8)">
+        <path d="M5 26 L29 26 L17 45 Z" fill={RAW.oxblood} />
+        <circle cx={17} cy={17} r={15} fill={RAW.oxblood} stroke="#FFF" strokeWidth={2} />
+      </g>
+      <g transform="translate(178,118) scale(0.8)">
+        <path d="M5 26 L29 26 L17 45 Z" fill={RAW.sienna} />
+        <circle cx={17} cy={17} r={15} fill={RAW.sienna} stroke="#FFF" strokeWidth={2} />
+      </g>
+    </svg>
+  );
+}
+
 function Pin({ color, icon, size = 40 }: { color: string; icon: string; size?: number }) {
   const w = size;
   const h = size * 1.32;
@@ -63,6 +133,17 @@ function Pin({ color, icon, size = 40 }: { color: string; icon: string; size?: n
   );
 }
 
+interface MapColors {
+  land: string;
+  water: string;
+  park: string;
+  roadFill: string;
+  roadStroke: string;
+  highway: string;
+  highwayStroke: string;
+  labelStroke: string;
+}
+
 function ThemeBlock({
   mode,
   bg,
@@ -73,6 +154,7 @@ function ThemeBlock({
   border,
   favorite,
   accent,
+  map,
 }: {
   mode: string;
   bg: string;
@@ -83,6 +165,7 @@ function ThemeBlock({
   border: string;
   favorite: string;
   accent: string;
+  map: MapColors;
 }) {
   return (
     <div style={{ background: bg, borderRadius: 16, padding: 28, color: ink }}>
@@ -177,6 +260,12 @@ function ThemeBlock({
           </div>
         </div>
 
+        {/* map style */}
+        <div style={{ background: surface, borderRadius: 14, padding: 16, border: `1px solid ${border}` }}>
+          <div style={{ fontSize: 11, color: inkTertiary, marginBottom: 10 }}>Styl mapy</div>
+          <MapPreview {...map} />
+        </div>
+
         {/* map pins */}
         <div style={{ background: surface, borderRadius: 14, padding: 16, border: `1px solid ${border}` }}>
           <div style={{ fontSize: 11, color: inkTertiary, marginBottom: 10 }}>Špendlíky na mapě</div>
@@ -265,6 +354,16 @@ export default function PaletteMockupPage() {
           border="#E9CE8F"
           favorite={RAW.oxblood}
           accent={RAW.sienna}
+          map={{
+            land: RAW.cream,
+            water: RAW.darkBrown,
+            park: DERIVED.olive,
+            roadFill: '#FFFFFF',
+            roadStroke: '#E9CE8F',
+            highway: RAW.tan,
+            highwayStroke: RAW.oxblood,
+            labelStroke: RAW.darkBrown,
+          }}
         />
       </div>
 
@@ -279,6 +378,16 @@ export default function PaletteMockupPage() {
         border="#4A3520"
         favorite="#D6564F"
         accent={RAW.tan}
+        map={{
+          land: '#241608',
+          water: '#120B04',
+          park: '#5C3A22',
+          roadFill: '#33220F',
+          roadStroke: '#4A3520',
+          highway: RAW.tan,
+          highwayStroke: '#5F4322',
+          labelStroke: RAW.cream,
+        }}
       />
 
       <p style={{ marginTop: 36, fontSize: 12.5, color: '#8a7c6c' }}>
