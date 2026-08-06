@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { rejectCandidate, runWatchdogNow, type RejectReason } from './actions';
+import { rejectCandidate, runWatchdogNow, sendTestDigest, type RejectReason } from './actions';
 import type { EventCandidateRow } from '@/lib/watchdog/types';
 
 const REJECT_REASONS: RejectReason[] = ['není nákupní', 'mimo Prahu', 'duplicitní', 'špatná data', 'jiné'];
@@ -25,6 +25,9 @@ export function WatchdogQueue({ candidates }: Props) {
   const [runResult, setRunResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [digestPending, startDigestTransition] = useTransition();
+  const [digestResult, setDigestResult] = useState<string | null>(null);
+
   function handleRunNow() {
     setError(null);
     setRunResult(null);
@@ -36,6 +39,18 @@ export function WatchdogQueue({ candidates }: Props) {
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Spuštění se nezdařilo.');
       }
+    });
+  }
+
+  function handleSendTestDigest() {
+    setDigestResult(null);
+    startDigestTransition(async () => {
+      const result = await sendTestDigest();
+      if (result.status === 'sent') setDigestResult('Odesláno — zkontrolujte schránku.');
+      else if (result.status === 'not_configured')
+        setDigestResult('RESEND_API_KEY nebo WATCHDOG_DIGEST_EMAIL není nastaveno.');
+      else if (result.status === 'error') setDigestResult(`Chyba: ${result.message}`);
+      else setDigestResult('Neodesláno.');
     });
   }
 
@@ -52,6 +67,18 @@ export function WatchdogQueue({ candidates }: Props) {
         </button>
         {runResult && <p className="text-sm text-emerald-600">{runResult}</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
+      </div>
+
+      <div className="mb-6 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleSendTestDigest}
+          disabled={digestPending}
+          className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-600 hover:border-neutral-400 disabled:opacity-50"
+        >
+          {digestPending ? 'Odesílám…' : 'Odeslat testovací e-mail'}
+        </button>
+        {digestResult && <p className="text-sm text-neutral-500">{digestResult}</p>}
       </div>
 
       {candidates.length === 0 ? (

@@ -1,5 +1,5 @@
 import 'server-only';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
 
 const COOKIE_NAME = 'obchody_admin_session';
@@ -30,6 +30,16 @@ export function isValidSessionValue(value: string | undefined): boolean {
 }
 
 export const SESSION_COOKIE_NAME = COOKIE_NAME;
+
+// Hash both sides to a fixed-length digest first — timingSafeEqual throws on
+// mismatched buffer lengths, and the password/env value lengths differ, so
+// comparing raw strings would leak length (and, if not hashed, comparison
+// timing) before the constant-time compare even runs.
+export function constantTimePasswordEqual(candidate: string, expected: string): boolean {
+  const a = createHash('sha256').update(candidate).digest();
+  const b = createHash('sha256').update(expected).digest();
+  return timingSafeEqual(a, b);
+}
 
 // Every Server Action that mutates data must call this first — Proxy
 // (proxy.ts) gates page navigation, but Next.js explicitly documents that

@@ -1,17 +1,11 @@
 import Link from 'next/link';
-import { getShops } from '@/lib/data';
+import { getShops, hasRealPhotos } from '@/lib/data';
 import { PRIMARY_CATEGORY_LABELS } from '@/lib/types';
 import { logout } from './login/actions';
 
 // Always fetch live — this must never serve a build-time snapshot of the
 // shop list.
 export const dynamic = 'force-dynamic';
-
-// Seed photos are all picsum.photos placeholders — anything else uploaded
-// through this panel's photo manager is a real photo.
-function hasRealPhotos(photos: string[]): boolean {
-  return photos.length > 0 && photos.every((url) => !url.includes('picsum.photos'));
-}
 
 export default async function ShopsListPage() {
   const shops = await getShops();
@@ -27,6 +21,9 @@ export default async function ShopsListPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link href="/shops/placeholder-photos" className="text-sm text-neutral-500 hover:text-neutral-900">
+            Fotky před beta{shops.length - realPhotoCount > 0 ? ` (${shops.length - realPhotoCount})` : ''}
+          </Link>
           <Link href="/events" className="text-sm text-neutral-500 hover:text-neutral-900">
             Akce
           </Link>

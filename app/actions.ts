@@ -52,6 +52,18 @@ export async function saveShop(id: string, fields: ShopFormFields): Promise<void
   revalidatePath(`/shops/${id}`);
 }
 
+// One-tap action for the placeholder-photo triage view — deliberately
+// narrow (only ever flips published false) so a mis-click can't touch any
+// other field, unlike routing through the full saveShop() form payload.
+export async function unpublishShop(id: string): Promise<void> {
+  await requireAuth();
+  const { error } = await supabaseAdmin.from('shops').update({ published: false }).eq('id', id);
+  if (error) throw error;
+  revalidatePath('/');
+  revalidatePath('/shops/placeholder-photos');
+  revalidatePath(`/shops/${id}`);
+}
+
 export async function createShop(fields: ShopFormFields): Promise<never> {
   await requireAuth();
   let id = slugify(fields.name);

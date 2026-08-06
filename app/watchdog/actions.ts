@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAuth } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { runWatchdogPipeline } from '@/lib/watchdog/pipeline';
-import { sendDigestEmail } from '@/lib/watchdog/digest';
+import { sendDigestEmail, type DigestSendResult } from '@/lib/watchdog/digest';
 import { fetchAndExtractText } from '@/lib/watchdog/fetchSource';
 import { extractCandidates, type ExtractedEvent } from '@/lib/watchdog/extract';
 import { buildAndInsertCandidate } from '@/lib/watchdog/processCandidate';
@@ -17,6 +17,14 @@ export async function runWatchdogNow(): Promise<{ sourcesChecked: number; newCan
   revalidatePath('/watchdog');
   revalidatePath('/watchdog/sources');
   return { sourcesChecked: summary.sourcesChecked, newCandidates: summary.newCandidates.length };
+}
+
+// Bypasses the "no candidates -> skip" guard with one synthetic entry, so
+// the curator can confirm RESEND_API_KEY/WATCHDOG_DIGEST_EMAIL actually
+// work without waiting for a real run to find new candidates.
+export async function sendTestDigest(): Promise<DigestSendResult> {
+  await requireAuth();
+  return sendDigestEmail([{ id: 'test', title: '(testovací e-mail z administrace)' }]);
 }
 
 const REJECT_REASONS = ['není nákupní', 'mimo Prahu', 'duplicitní', 'špatná data', 'jiné'] as const;

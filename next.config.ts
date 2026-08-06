@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -11,4 +12,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Source map upload only actually runs when SENTRY_AUTH_TOKEN is set
+// (Vercel env var, not yet configured) — without it this just wraps the
+// config as a no-op, same "works without the key" posture as the rest of
+// this pass.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: true,
+});

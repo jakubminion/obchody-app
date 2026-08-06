@@ -12,6 +12,12 @@ export async function getShops(): Promise<Shop[]> {
   return (data ?? []).map(mapShopRow);
 }
 
+// Seed photos are all picsum.photos placeholders — anything else uploaded
+// through the photo manager is a real photo.
+export function hasRealPhotos(photos: string[]): boolean {
+  return photos.length > 0 && photos.every((url) => !url.includes('picsum.photos'));
+}
+
 export async function getShop(id: string): Promise<Shop | null> {
   const { data, error } = await supabaseAdmin
     .from('shops')

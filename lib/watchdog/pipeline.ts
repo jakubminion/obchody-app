@@ -1,4 +1,5 @@
 import 'server-only';
+import * as Sentry from '@sentry/nextjs';
 import { supabaseAdmin } from '../supabase';
 import { fetchAndExtractText } from './fetchSource';
 import { extractCandidates } from './extract';
@@ -60,8 +61,10 @@ export async function runWatchdogPipeline(): Promise<PipelineRunSummary> {
         .eq('id', source.id);
     } catch (err) {
       // One bad source (dead link, layout change, transient network error)
-      // must not abort the whole run.
+      // must not abort the whole run — but it must still be visible
+      // somewhere the curator will actually see it, not just a Vercel log.
       console.error(`Watchdog: failed to process source "${source.name}" (${source.url}):`, err);
+      Sentry.captureException(err, { extra: { sourceId: source.id, sourceName: source.name, sourceUrl: source.url } });
     }
   }
 
