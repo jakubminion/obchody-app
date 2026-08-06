@@ -15,7 +15,9 @@ export const config = {
   matcher: [
     // Everything except /login, the watchdog cron endpoint (no session
     // cookie — authenticated by its own bearer-secret check instead),
-    // static assets, and the favicon.
-    '/((?!login|api/watchdog|_next/static|_next/image|favicon.ico).*)',
+    // /privacy (public policy page linked from App Store Connect — must be
+    // reachable by Apple's review and anyone reading the App Store listing,
+    // neither of whom have a session), static assets, and the favicon.
+    '/((?!login|api/watchdog|privacy|_next/static|_next/image|favicon.ico).*)',
   ],
 };
