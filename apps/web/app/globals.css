@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+/* Ported from moje-aplikace/src/constants/theme.ts — same 5-color raw
+   palette + 4 derived shades, same light/dark role mapping. Kept web-local
+   (not in packages/db) since the admin panel deliberately doesn't use the
+   brand palette in its own UI. */
+:root {
+  --color-cream: #f2e6c2;
+  --color-charcoal: #252426;
+  --color-orange: #f25c05;
+  --color-forest: #3e592a;
+  --color-brown-red: #592d14;
+  --color-rust: #a6440c;
+  --color-dark-olive: #323e28;
+  --color-cream-olive: #98a076;
+  --color-cream-rust: #cc9567;
+
+  --background: var(--color-cream);
+  --surface: #ffffff;
+  --ink: var(--color-charcoal);
+  --ink-secondary: #6d6858;
+  --ink-tertiary: #968f7b;
+  --border: #e1d6b5;
+  --favorite: var(--color-brown-red);
+  --accent: var(--color-rust);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--color-charcoal);
+    --surface: #444138;
+    --ink: var(--color-cream);
+    --ink-secondary: #beb59b;
+    --ink-tertiary: #8c8574;
+    --border: #3d3b39;
+    --favorite: var(--color-rust);
+    --accent: var(--color-orange);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-tertiary: var(--ink-tertiary);
+  --color-border: var(--border);
+  --color-favorite: var(--favorite);
+  --color-accent: var(--accent);
+}
+
+body {
+  background: var(--background);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
