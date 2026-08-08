@@ -11,21 +11,17 @@ import { BackButton } from '../../../components/BackButton';
 import { PhotoGallery } from '../../../components/PhotoGallery';
 import { ShopLogo } from '../../../components/ShopLogo';
 
-export const revalidate = 3600;
+// SSR on every request, not SSG+ISR — matches app/page.tsx. This page's
+// content (photos, hours, everything) is admin-edited, and a curator who
+// just uploaded a photo expects to see it immediately, not up to an hour
+// later. Traffic here is low enough right now that the TTFB cost of
+// dropping static generation is the right trade against that staleness —
+// worth revisiting with proper on-demand revalidation (revalidatePath from
+// admin's save actions) if traffic grows enough for it to matter.
+export const dynamic = 'force-dynamic';
 
 const WEEKDAY_NAMES = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
 const WEEKDAY_DISPLAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
-
-async function getAllSlugs(): Promise<string[]> {
-  const { data, error } = await supabasePublic().from('shops').select('slug').eq('published', true);
-  if (error) throw error;
-  return (data ?? []).map((row) => row.slug as string);
-}
-
-export async function generateStaticParams() {
-  const slugs = await getAllSlugs();
-  return slugs.map((slug) => ({ slug }));
-}
 
 async function getShopBySlug(slug: string): Promise<Shop | null> {
   const { data, error } = await supabasePublic()

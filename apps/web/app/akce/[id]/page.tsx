@@ -4,18 +4,9 @@ import { isEventLive, mapEventRow, supabasePublic, type AppEvent } from '@kousek
 import { BackButton } from '../../../components/BackButton';
 import { formatEventDateLabelFull, formatEventHoursLabel } from '../../../lib/eventFormat';
 
-export const revalidate = 3600;
-
-async function getAllIds(): Promise<string[]> {
-  const { data, error } = await supabasePublic().from('events').select('id').eq('published', true);
-  if (error) throw error;
-  return (data ?? []).map((row) => row.id as string);
-}
-
-export async function generateStaticParams() {
-  const ids = await getAllIds();
-  return ids.map((id) => ({ id }));
-}
+// SSR on every request — same reasoning as /obchod/[slug], see that file's
+// comment.
+export const dynamic = 'force-dynamic';
 
 async function getEventById(id: string): Promise<AppEvent | null> {
   const { data, error } = await supabasePublic()
