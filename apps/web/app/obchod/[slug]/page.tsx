@@ -7,6 +7,7 @@ import {
   type Shop,
   type WeekdayHours,
 } from '@kousek/db';
+import { BackButton } from '../../../components/BackButton';
 import { PhotoGallery } from '../../../components/PhotoGallery';
 import { ShopLogo } from '../../../components/ShopLogo';
 
@@ -71,6 +72,7 @@ export default async function ShopPage(props: PageProps<'/obchod/[slug]'>) {
 
   return (
     <main className="mx-auto max-w-2xl pb-16">
+      <BackButton />
       <PhotoGallery photos={shop.photos} />
 
       <div className="flex flex-col gap-2 p-5">

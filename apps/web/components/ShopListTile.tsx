@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Shop } from '@kousek/db';
 import { formatDistance } from '@kousek/db';
+import { rememberView } from '../lib/lastView';
 
 interface Props {
   shop: Shop;
@@ -21,6 +22,7 @@ export function ShopListTile({ shop, distanceMeters, locationLabel }: Props) {
   return (
     <Link
       href={`/obchod/${shop.slug}`}
+      onClick={() => rememberView('list')}
       className="relative block aspect-[4/3] overflow-hidden rounded-[20px] bg-border"
     >
       {photo && (

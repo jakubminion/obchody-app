@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { isEventLive, mapEventRow, supabasePublic, type AppEvent } from '@kousek/db';
+import { BackButton } from '../../../components/BackButton';
 import { formatEventDateLabelFull, formatEventHoursLabel } from '../../../lib/eventFormat';
 
 export const revalidate = 3600;
@@ -42,6 +43,7 @@ export default async function EventPage(props: PageProps<'/akce/[id]'>) {
 
   return (
     <main className="mx-auto max-w-2xl pb-16">
+      <BackButton />
       {event.imageUrl && (
         <div className="relative aspect-[4/3] w-full bg-border">
           <Image src={event.imageUrl} alt="" fill sizes="(max-width: 672px) 100vw, 672px" priority className="object-cover" />

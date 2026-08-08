@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { APIProvider, Map, useMap, type MapCameraChangedEvent } from '@vis.gl/react-google-maps';
+import {
+  APIProvider,
+  Map,
+  Marker,
+  useApiIsLoaded,
+  useMap,
+  type MapCameraChangedEvent,
+} from '@vis.gl/react-google-maps';
 import {
   applyPinSpread,
   distanceMeters,
@@ -27,9 +34,11 @@ import { ShopListTile } from '../components/ShopListTile';
 import { ShopPreviewCard } from '../components/ShopPreviewCard';
 import { ViewToggle, type ViewMode } from '../components/ViewToggle';
 import { GOOGLE_MAPS_API_KEY } from '../lib/googleMapsKey';
+import { consumeRememberedView, rememberView } from '../lib/lastView';
 import { LocationProvider, PRAGUE_CENTER, useLocationContext } from '../lib/LocationProvider';
 import { pastelMapStyle, pastelMapStyleDark } from '../lib/mapStyle';
 import { palette } from '../lib/palette';
+import { userLocationPinIcon } from '../lib/pinIcon';
 
 const DEFAULT_ZOOM = 15;
 const MAP_ID = 'kousek-map';
@@ -54,9 +63,19 @@ export function HomeApp({ shops, events }: Props) {
 function HomeAppInner({ shops, events }: Props) {
   const router = useRouter();
   const map = useMap(MAP_ID);
+  // Guards every pin below: they generate their own SVG icons by calling
+  // `new google.maps.Size(...)`/`Point(...)` (see lib/pinIcon.ts), and
+  // `window.google.maps` exists as an empty stub object from the moment
+  // the script tag is *requested*, well before those classes are actually
+  // defined on it — rendering a Marker in that window throws "is not a
+  // constructor". Caught this via the user-location marker specifically
+  // because geolocation can resolve fast enough to render before the API
+  // script finishes, but it's a latent risk for every marker, not just
+  // that one.
+  const apiIsLoaded = useApiIsLoaded();
   const { hasSeenExplainer, effectiveCoords, isUsingFallback, completeExplainer } = useLocationContext();
 
-  const [viewMode, setViewMode] = useState<ViewMode>('map');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => consumeRememberedView());
   const [selectedPrimaryCategories, setSelectedPrimaryCategories] = useState<PrimaryCategory[]>([]);
   const [openNowOnly, setOpenNowOnly] = useState(false);
   const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
@@ -173,7 +192,13 @@ function HomeAppInner({ shops, events }: Props) {
     setLatitudeDelta(bounds.north - bounds.south);
   }, []);
 
-  const handleOpenEvent = useCallback((event: AppEvent) => router.push(`/akce/${event.id}`), [router]);
+  const handleOpenEvent = useCallback(
+    (event: AppEvent) => {
+      rememberView('map'); // only reachable via a map pin — see EventListCard for the 'events'-origin path
+      router.push(`/akce/${event.id}`);
+    },
+    [router],
+  );
 
   if (hasSeenExplainer === null) {
     return null;
@@ -234,33 +259,43 @@ function HomeAppInner({ shops, events }: Props) {
                 setSelectedLocationId(null);
               }}
             >
-              {spreadPins.map((pin) => (
-                <MapPin
-                  key={pin.location.id}
-                  shop={pin.shop}
-                  location={pin.location}
-                  position={{ lat: pin.spreadLat, lng: pin.spreadLng }}
-                  onClick={handleSelectShop}
-                />
-              ))}
-              {upcomingSoonEvents.map((event) => (
-                <EventPinUpcoming
-                  key={event.id}
-                  event={event}
-                  position={{ lat: event.lat!, lng: event.lng! }}
-                  accent={accentColor}
-                  onClick={handleOpenEvent}
-                />
-              ))}
-              {liveEvents.map((event) => (
-                <EventPinLive
-                  key={event.id}
-                  event={event}
-                  position={{ lat: event.lat!, lng: event.lng! }}
-                  accent={accentColor}
-                  onClick={handleOpenEvent}
-                />
-              ))}
+              {apiIsLoaded && (
+                <>
+                  {spreadPins.map((pin) => (
+                    <MapPin
+                      key={pin.location.id}
+                      shop={pin.shop}
+                      location={pin.location}
+                      position={{ lat: pin.spreadLat, lng: pin.spreadLng }}
+                      onClick={handleSelectShop}
+                    />
+                  ))}
+                  {upcomingSoonEvents.map((event) => (
+                    <EventPinUpcoming
+                      key={event.id}
+                      event={event}
+                      position={{ lat: event.lat!, lng: event.lng! }}
+                      accent={accentColor}
+                      onClick={handleOpenEvent}
+                    />
+                  ))}
+                  {liveEvents.map((event) => (
+                    <EventPinLive
+                      key={event.id}
+                      event={event}
+                      position={{ lat: event.lat!, lng: event.lng! }}
+                      accent={accentColor}
+                      onClick={handleOpenEvent}
+                    />
+                  ))}
+                  {/* Only when geolocation actually resolved — not the
+                      Prague fallback, same as the native app's
+                      showsUserLocation={!isUsingFallback}. */}
+                  {!isUsingFallback && (
+                    <Marker position={effectiveCoords} icon={userLocationPinIcon(palette.orange)} clickable={false} />
+                  )}
+                </>
+              )}
             </Map>
 
             <button

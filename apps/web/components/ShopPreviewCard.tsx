@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { Location, Shop } from '@kousek/db';
 import { formatDistance } from '@kousek/db';
+import { rememberView } from '../lib/lastView';
 import { ShopLogo } from './ShopLogo';
 
 interface Props {
@@ -18,6 +19,7 @@ export function ShopPreviewCard({ shop, location, distanceMeters }: Props) {
   return (
     <Link
       href={`/obchod/${shop.slug}`}
+      onClick={() => rememberView('map')}
       className="pointer-events-auto absolute bottom-24 left-4 right-4 z-20 flex items-center gap-3 rounded-2xl bg-surface p-3 shadow-lg"
     >
       {shop.logotypeUrl ? (

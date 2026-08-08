@@ -43,3 +43,16 @@ export function eventUpcomingPinIcon(accent: string): google.maps.Icon {
   </svg>`;
   return svgIcon(svg, 22, 22, [11, 11]);
 }
+
+// The user's own position — react-native-maps' showsUserLocation had no
+// web equivalent to fall back on (Google Maps JS has no built-in "blue
+// dot"), so this is a from-scratch marker. Always the raw palette orange
+// (not the mode-aware `accent`, which is rust in light mode) — a "you are
+// here" indicator should read the same vivid color in both themes.
+export function userLocationPinIcon(orange: string): google.maps.Icon {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+    <circle cx="14" cy="14" r="13" fill="${orange}" opacity="0.22" />
+    <circle cx="14" cy="14" r="7" fill="${orange}" stroke="#FFFFFF" stroke-width="2.5" />
+  </svg>`;
+  return svgIcon(svg, 28, 28, [14, 14]);
+}

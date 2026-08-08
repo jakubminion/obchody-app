@@ -21,7 +21,7 @@ export function LocationExplainer({ onContinue }: Props) {
             <circle cx={12} cy={9.5} r={2.5} />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-ink">Obchody nablízku</h1>
+        <h1 className="text-2xl font-bold text-ink">Kousek od vás</h1>
         <p className="max-w-xs text-[15px] leading-relaxed text-ink-secondary">
           Abychom vám mohli ukázat vybrané obchody ve vašem okolí a jejich vzdálenost, potřebujeme znát vaši
           polohu. Polohu nikam neukládáme ani nesledujeme.

@@ -20,7 +20,13 @@ const MODES: { mode: ViewMode; label: string }[] = [
 export function ViewToggle({ value, onChange }: Props) {
   return (
     <div
-      className="pointer-events-auto absolute left-1/2 flex -translate-x-1/2 gap-1 rounded-full border border-border bg-surface/95 p-1 shadow-lg backdrop-blur"
+      // `fixed`, not `absolute` — this has no positioned ancestor between
+      // it and the Seznam/Akce panels' own `overflow-y-auto` scroll
+      // container, so `absolute` was resolving against the scrolling
+      // document flow on mobile browsers and visibly dragging along with
+      // the list instead of staying put. `fixed` is always viewport-
+      // relative regardless of what's scrolling underneath it.
+      className="pointer-events-auto fixed left-1/2 z-20 flex -translate-x-1/2 gap-1 rounded-full border border-border bg-surface/95 p-1 shadow-lg backdrop-blur"
       // calc(...) instead of a bottom-* utility — clears the iPhone home
       // indicator on notched devices (needs viewport-fit=cover, set in
       // app/layout.tsx's viewport export) while still leaving the same

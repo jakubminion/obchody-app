@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { AppEvent } from '@kousek/db';
 import { isEventLive } from '@kousek/db';
 import { formatEventDateLabel, formatEventHoursLabel } from '../lib/eventFormat';
+import { rememberView } from '../lib/lastView';
 
 interface Props {
   event: AppEvent;
@@ -18,6 +19,7 @@ export function EventListCard({ event }: Props) {
   return (
     <Link
       href={`/akce/${event.id}`}
+      onClick={() => rememberView('events')}
       className="block overflow-hidden rounded-[20px] border border-border bg-surface"
     >
       <div className="relative aspect-[4/3] w-full bg-border">
