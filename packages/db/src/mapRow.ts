@@ -1,4 +1,4 @@
-import type { Category, Location, PrimaryCategory, Shop, WeekdayHours } from './types';
+import type { AppEvent, Category, Location, PrimaryCategory, Shop, WeekdayHours } from './types';
 
 interface LocationRow {
   id: string;
@@ -68,5 +68,39 @@ export function mapShopRow(row: ShopRow): Shop {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     locations: (row.locations ?? []).map(mapLocationRow),
+  };
+}
+
+interface EventRow {
+  id: string;
+  title: string;
+  description: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  opens_time: string | null;
+  closes_time: string | null;
+  venue_name: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  image_url: string | null;
+  source_url: string | null;
+}
+
+export function mapEventRow(row: EventRow): AppEvent {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+    opensTime: row.opens_time,
+    closesTime: row.closes_time,
+    venueName: row.venue_name,
+    address: row.address,
+    lat: row.lat,
+    lng: row.lng,
+    imageUrl: row.image_url,
+    sourceUrl: row.source_url,
   };
 }

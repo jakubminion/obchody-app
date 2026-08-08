@@ -8,4 +8,6 @@ export * from './mapRow';
 export * from './distance';
 export * from './openingHours';
 export * from './openingStatus';
+export * from './eventStatus';
+export * from './pinSpread';
 export { supabasePublic } from './supabasePublic';

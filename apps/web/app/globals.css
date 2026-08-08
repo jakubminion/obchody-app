@@ -53,4 +53,16 @@ body {
   background: var(--background);
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* iOS Safari's rubber-band bounce reveals whatever's behind the body on
+     overscroll — matching the theme background here means that flash is
+     the right color instead of default white, in both themes. */
+  overscroll-behavior-y: none;
+}
+
+/* CategoryFilterChips' horizontal scroller: `scrollbar-width: none` (set
+   inline) only hides Firefox's scrollbar — every iOS browser is WebKit
+   under the hood (Apple mandates it), so this pseudo-element rule is the
+   only way to hide it there and in Chrome/Edge/Samsung Internet too. */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

@@ -108,6 +108,29 @@ export interface Shop {
   locations: Location[]; // 1..n physical stores
 }
 
+export interface AppEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  startsAt: string; // ISO date — the first day the event runs
+  endsAt: string | null; // ISO date — the last day, or null if single-day
+  opensTime: string | null; // "HH:MM", daily opening time within the date range
+  closesTime: string | null; // "HH:MM", daily closing time within the date range
+  venueName: string | null;
+  address: string | null;
+  lat: number | null;
+  lng: number | null;
+  imageUrl: string | null;
+  sourceUrl: string | null;
+}
+
+// One entry per physical location, not per shop — a multi-branch shop
+// contributes one LocationPin per branch.
+export interface LocationPin {
+  shop: Shop;
+  location: Location;
+}
+
 export function emptyWeekdayHours(): WeekdayHours[] {
   return Array.from({ length: 7 }, (_, weekday) => ({ weekday, intervals: [] }));
 }
